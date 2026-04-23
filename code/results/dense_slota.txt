@@ -1,0 +1,10 @@
+dense_01.txt: 0.000530 seconds, Memory : 888 Bytes, Vertices: 10, Edges: 31, Articulation Points: 0
+dense_02.txt: 0.000208 seconds, Memory : 1580 Bytes, Vertices: 15, Edges: 68, Articulation Points: 0
+dense_03.txt: 0.000175 seconds, Memory : 1312 Bytes, Vertices: 12, Edges: 52, Articulation Points: 0
+dense_04.txt: 0.000193 seconds, Memory : 2176 Bytes, Vertices: 20, Edges: 114, Articulation Points: 0
+dense_05.txt: 0.000209 seconds, Memory : 768 Bytes, Vertices: 8, Edges: 23, Articulation Points: 0
+dense_06.txt: 0.000356 seconds, Memory : 2008 Bytes, Vertices: 18, Edges: 107, Articulation Points: 0
+dense_07.txt: 0.000242 seconds, Memory : 1576 Bytes, Vertices: 14, Edges: 68, Articulation Points: 0
+dense_08.txt: 0.000206 seconds, Memory : 1744 Bytes, Vertices: 16, Edges: 81, Articulation Points: 0
+dense_09.txt: 0.000216 seconds, Memory : 2376 Bytes, Vertices: 22, Edges: 143, Articulation Points: 0
+dense_10.txt: 0.000313 seconds, Memory : 2804 Bytes, Vertices: 25, Edges: 165, Articulation Points: 0

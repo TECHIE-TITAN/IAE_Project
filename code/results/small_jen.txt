@@ -1,0 +1,10 @@
+small_01.txt: 0.000163 seconds, Memory : 320 Bytes, Vertices: 3, Edges: 2
+small_02.txt: 0.000164 seconds, Memory : 440 Bytes, Vertices: 4, Edges: 4
+small_03.txt: 0.000154 seconds, Memory : 464 Bytes, Vertices: 5, Edges: 4
+small_04.txt: 0.000160 seconds, Memory : 596 Bytes, Vertices: 6, Edges: 6
+small_05.txt: 0.000361 seconds, Memory : 676 Bytes, Vertices: 7, Edges: 7
+small_06.txt: 0.000156 seconds, Memory : 556 Bytes, Vertices: 5, Edges: 8
+small_07.txt: 0.000159 seconds, Memory : 696 Bytes, Vertices: 8, Edges: 8
+small_08.txt: 0.000327 seconds, Memory : 640 Bytes, Vertices: 6, Edges: 9
+small_09.txt: 0.000227 seconds, Memory : 824 Bytes, Vertices: 10, Edges: 9
+small_10.txt: 0.000156 seconds, Memory : 940 Bytes, Vertices: 12, Edges: 12

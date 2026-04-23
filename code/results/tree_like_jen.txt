@@ -1,0 +1,10 @@
+tree_01.txt: 0.000302 seconds, Memory : 1232 Bytes, Vertices: 15, Edges: 14
+tree_02.txt: 0.000276 seconds, Memory : 1544 Bytes, Vertices: 20, Edges: 19
+tree_03.txt: 0.000235 seconds, Memory : 1968 Bytes, Vertices: 25, Edges: 24
+tree_04.txt: 0.000278 seconds, Memory : 2416 Bytes, Vertices: 30, Edges: 30
+tree_05.txt: 0.000164 seconds, Memory : 2344 Bytes, Vertices: 31, Edges: 30
+tree_06.txt: 0.000186 seconds, Memory : 3056 Bytes, Vertices: 41, Edges: 40
+tree_07.txt: 0.000179 seconds, Memory : 2704 Bytes, Vertices: 35, Edges: 34
+tree_08.txt: 0.000219 seconds, Memory : 2216 Bytes, Vertices: 28, Edges: 27
+tree_09.txt: 0.000165 seconds, Memory : 2040 Bytes, Vertices: 25, Edges: 26
+tree_10.txt: 0.000214 seconds, Memory : 4048 Bytes, Vertices: 50, Edges: 54

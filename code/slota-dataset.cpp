@@ -1,8 +1,5 @@
 #include <bits/stdc++.h>
-#include <iostream>
-#ifdef __linux__
-#include <sys/resource.h>
-#endif
+#include <chrono>
 using namespace std;
 
 size_t calculateVectorMemory(const vector<vector<int>> &vec)
@@ -16,7 +13,7 @@ size_t calculateVectorMemory(const vector<vector<int>> &vec)
     return memory;
 }
 
-bool exclusion_bfs(const vector<vector<int>> &adj, const vector<int> &L, const vector<int> &P,vector<int> &stamp, int remove_v, int start_w, int lvl_v, int curStamp)
+bool exclusion_bfs(const vector<vector<int>> &adj, const vector<int> &L, const vector<int> &P, vector<int> &stamp, int remove_v, int start_w, int lvl_v, int curStamp)
 {
     queue<int> Q;
     stamp[start_w] = curStamp;
@@ -29,7 +26,7 @@ bool exclusion_bfs(const vector<vector<int>> &adj, const vector<int> &L, const v
             return true;
         for (int nb : adj[u])
         {
-            if (nb != remove_v && nb >= 0 && nb < stamp.size() && stamp[nb] != curStamp)
+            if (nb != remove_v && nb >= 0 && nb < (int)stamp.size() && stamp[nb] != curStamp)
             {
                 stamp[nb] = curStamp;
                 Q.push(nb);
@@ -43,7 +40,7 @@ bool is_cycle_graph(const vector<vector<int>> &adj, int n)
 {
     for (int i = 0; i < n; i++)
     {
-        if (adj[i].size() != 2)
+        if ((int)adj[i].size() != 2)
         {
             return false;
         }
@@ -123,55 +120,71 @@ int main(int argc, char *argv[])
     ios::sync_with_stdio(false);
     cin.tie(nullptr);
 
-    string input_file = "graph.txt";
-    if (argc > 1)
+    if (argc != 2)
     {
-        input_file = argv[1];
+        cerr << "Usage: " << argv[0] << " <input_file>" << endl;
+        return 1;
     }
+
+    string input_file = argv[1];
+
+    // Start timing
+    auto start = chrono::high_resolution_clock::now();
+
     ifstream fin(input_file);
     if (!fin)
     {
         cerr << "Error: could not open " << input_file << "\n";
         return 1;
     }
+
     string line;
     int n = 0, m = 0;
-    bool dimensions_read = false;
+
+    // Skip comment lines starting with '#', read first data line as n m
     while (getline(fin, line))
     {
-        if (line.empty() || line[0] == '%')
-        {
+        if (line.empty() || line[0] == '#')
             continue;
-        }
-        if (!dimensions_read)
-        {
-            stringstream ss(line);
-            int rows, cols, nnz;
-            ss >> rows >> nnz>> cols;
-            n = rows;
-            m = cols;
-            dimensions_read = true;
+        stringstream ss(line);
+        if (ss >> n >> m)
             break;
-        }
     }
-    cout << n << " " << m << " ";
-    vector<vector<int>> adj(n);
-    int u, v;
-    double value;
-    while (fin >> u >> v >> value)
+
+    if (n <= 0)
     {
-        u--;
-        v--;
-        adj[u].push_back(v);
-        adj[v].push_back(u);
+        cerr << "Error: Could not find valid dimensions\n";
+        return 1;
+    }
+
+    vector<vector<int>> adj(n);
+    int edges_read = 0;
+    while (getline(fin, line))
+    {
+        if (line.empty() || line[0] == '#')
+            continue;
+        stringstream ss(line);
+        int u, v;
+        if (ss >> u >> v)
+        {
+            // Dataset is 0-indexed, no adjustment needed
+            if (u >= 0 && u < n && v >= 0 && v < n)
+            {
+                adj[u].push_back(v);
+                adj[v].push_back(u);
+                edges_read++;
+            }
+        }
     }
     fin.close();
+
     vector<int> P(n, -2), L(n, -1), stamp(n, 0);
     vector<bool> seen(n, false), isArt_slota(n, false);
     int curStamp = 1;
+
     if (is_cycle_graph(adj, n))
     {
-        return 0;
+        // Cycle graph - no articulation points
     }
     else
     {
@@ -231,7 +244,7 @@ int main(int argc, char *argv[])
                     continue;
                 for (int w : children)
                 {
-                    bool can_reach_ancestor = exclusion_bfs(adj, L, P,stamp, v, w, L[v], ++curStamp);
+                    bool can_reach_ancestor = exclusion_bfs(adj, L, P, stamp, v, w, L[v], ++curStamp);
                     if (!can_reach_ancestor)
                     {
                         is_articulation = true;
@@ -245,23 +258,9 @@ int main(int argc, char *argv[])
             }
         }
     }
+
     int art_count = count(isArt_slota.begin(), isArt_slota.end(), true);
-    // if (art_count > 0)
-    // {
-    //     cout << "Found " << art_count << " articulation points. Graph is not biconnected.\n";
-    //     // Print the articulation points
-    //     // cout << "Articulation points: ";
-    //     // for (int i = 0; i < n; i++) {
-    //     //     if (isArt_slota[i]) {
-    //     //         cout << i << " ";
-    //     //     }
-    //     // }
-    //     // cout << "\n";
-    // }
-    // else
-    // {
-    //     cout << "No articulation points found. Graph is biconnected.\n";
-    // }
+
     size_t adj_memory = calculateVectorMemory(adj);
     size_t P_memory = sizeof(P) + P.capacity() * sizeof(int);
     size_t L_memory = sizeof(L) + L.capacity() * sizeof(int);
@@ -269,6 +268,22 @@ int main(int argc, char *argv[])
     size_t seen_memory = sizeof(seen) + seen.capacity() * sizeof(bool);
     size_t isArt_slota_memory = sizeof(isArt_slota) + isArt_slota.capacity() * sizeof(bool);
     size_t total_memory = adj_memory + P_memory + L_memory + stamp_memory + seen_memory + isArt_slota_memory;
-    cout << total_memory << endl;
+
+    // End timing
+    auto end = chrono::high_resolution_clock::now();
+    chrono::duration<double> elapsed = end - start;
+
+    // Extract filename from path
+    string filepath = argv[1];
+    string filename = filepath;
+    size_t pos = filepath.find_last_of("/\\");
+    if (pos != string::npos)
+        filename = filepath.substr(pos + 1);
+
+    cout << filename << ": " << fixed << setprecision(6) << elapsed.count()
+         << " seconds, Memory : " << total_memory << " Bytes"
+         << ", Vertices: " << n << ", Edges: " << edges_read
+         << ", Articulation Points: " << art_count << endl;
+
     return 0;
 }

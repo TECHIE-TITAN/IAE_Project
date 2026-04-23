@@ -1,0 +1,10 @@
+tree_01.txt: 0.000196 seconds, Memory : 916 Bytes, Vertices: 15, Edges: 14, Articulation Points: 1
+tree_02.txt: 0.000171 seconds, Memory : 1112 Bytes, Vertices: 20, Edges: 19, Articulation Points: 0
+tree_03.txt: 0.000161 seconds, Memory : 1364 Bytes, Vertices: 25, Edges: 24, Articulation Points: 1
+tree_04.txt: 0.000215 seconds, Memory : 1560 Bytes, Vertices: 30, Edges: 30, Articulation Points: 0
+tree_05.txt: 0.000189 seconds, Memory : 1600 Bytes, Vertices: 31, Edges: 30, Articulation Points: 1
+tree_06.txt: 0.000187 seconds, Memory : 2100 Bytes, Vertices: 41, Edges: 40, Articulation Points: 1
+tree_07.txt: 0.000182 seconds, Memory : 1876 Bytes, Vertices: 35, Edges: 34, Articulation Points: 1
+tree_08.txt: 0.000164 seconds, Memory : 1512 Bytes, Vertices: 28, Edges: 27, Articulation Points: 1
+tree_09.txt: 0.000178 seconds, Memory : 1364 Bytes, Vertices: 25, Edges: 26, Articulation Points: 0
+tree_10.txt: 0.000197 seconds, Memory : 2592 Bytes, Vertices: 50, Edges: 54, Articulation Points: 1

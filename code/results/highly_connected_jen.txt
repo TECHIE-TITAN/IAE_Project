@@ -1,0 +1,10 @@
+highly_connected_01.txt: 0.000167 seconds, Memory : 556 Bytes, Vertices: 5, Edges: 10
+highly_connected_02.txt: 0.000168 seconds, Memory : 836 Bytes, Vertices: 7, Edges: 21
+highly_connected_03.txt: 0.000291 seconds, Memory : 908 Bytes, Vertices: 9, Edges: 17
+highly_connected_04.txt: 0.000198 seconds, Memory : 2204 Bytes, Vertices: 25, Edges: 40
+highly_connected_05.txt: 0.000175 seconds, Memory : 1192 Bytes, Vertices: 12, Edges: 22
+highly_connected_06.txt: 0.000166 seconds, Memory : 728 Bytes, Vertices: 7, Edges: 12
+highly_connected_07.txt: 0.000164 seconds, Memory : 976 Bytes, Vertices: 10, Edges: 15
+highly_connected_08.txt: 0.000200 seconds, Memory : 2744 Bytes, Vertices: 20, Edges: 120
+highly_connected_09.txt: 0.000185 seconds, Memory : 1340 Bytes, Vertices: 15, Edges: 19
+highly_connected_10.txt: 0.000213 seconds, Memory : 3084 Bytes, Vertices: 30, Edges: 83

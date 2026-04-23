@@ -1,0 +1,10 @@
+small_01.txt: 0.000147 seconds, Memory : 364 Bytes, Vertices: 3, Edges: 2, Articulation Points: 0
+small_02.txt: 0.000155 seconds, Memory : 416 Bytes, Vertices: 4, Edges: 4, Articulation Points: 0
+small_03.txt: 0.000166 seconds, Memory : 452 Bytes, Vertices: 5, Edges: 4, Articulation Points: 0
+small_04.txt: 0.000151 seconds, Memory : 508 Bytes, Vertices: 6, Edges: 6, Articulation Points: 0
+small_05.txt: 0.000170 seconds, Memory : 552 Bytes, Vertices: 7, Edges: 7, Articulation Points: 0
+small_06.txt: 0.000149 seconds, Memory : 500 Bytes, Vertices: 5, Edges: 8, Articulation Points: 0
+small_07.txt: 0.000244 seconds, Memory : 592 Bytes, Vertices: 8, Edges: 8, Articulation Points: 0
+small_08.txt: 0.000162 seconds, Memory : 552 Bytes, Vertices: 6, Edges: 9, Articulation Points: 0
+small_09.txt: 0.000159 seconds, Memory : 672 Bytes, Vertices: 10, Edges: 9, Articulation Points: 0
+small_10.txt: 0.000309 seconds, Memory : 768 Bytes, Vertices: 12, Edges: 12, Articulation Points: 0

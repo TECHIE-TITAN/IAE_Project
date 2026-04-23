@@ -1,0 +1,10 @@
+sparse_01.txt: 0.000228 seconds, Memory : 932 Bytes, Vertices: 10, Edges: 12
+sparse_02.txt: 0.000187 seconds, Memory : 1756 Bytes, Vertices: 20, Edges: 25
+sparse_03.txt: 0.000226 seconds, Memory : 2560 Bytes, Vertices: 30, Edges: 40
+sparse_04.txt: 0.000233 seconds, Memory : 4196 Bytes, Vertices: 50, Edges: 65
+sparse_05.txt: 0.000174 seconds, Memory : 1316 Bytes, Vertices: 15, Edges: 18
+sparse_06.txt: 0.000231 seconds, Memory : 2192 Bytes, Vertices: 25, Edges: 35
+sparse_07.txt: 0.000550 seconds, Memory : 3428 Bytes, Vertices: 40, Edges: 55
+sparse_08.txt: 0.000258 seconds, Memory : 3028 Bytes, Vertices: 35, Edges: 50
+sparse_09.txt: 0.000363 seconds, Memory : 5044 Bytes, Vertices: 60, Edges: 80
+sparse_10.txt: 0.000360 seconds, Memory : 3808 Bytes, Vertices: 45, Edges: 60

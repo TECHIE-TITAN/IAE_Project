@@ -1,0 +1,10 @@
+sparse_01.txt: 0.000193 seconds, Memory : 712 Bytes, Vertices: 10, Edges: 12, Articulation Points: 1
+sparse_02.txt: 0.000183 seconds, Memory : 1200 Bytes, Vertices: 20, Edges: 25, Articulation Points: 0
+sparse_03.txt: 0.000214 seconds, Memory : 1684 Bytes, Vertices: 30, Edges: 40, Articulation Points: 0
+sparse_04.txt: 0.000260 seconds, Memory : 2732 Bytes, Vertices: 50, Edges: 65, Articulation Points: 1
+sparse_05.txt: 0.000358 seconds, Memory : 940 Bytes, Vertices: 15, Edges: 18, Articulation Points: 1
+sparse_06.txt: 0.000233 seconds, Memory : 1476 Bytes, Vertices: 25, Edges: 35, Articulation Points: 1
+sparse_07.txt: 0.000678 seconds, Memory : 2292 Bytes, Vertices: 40, Edges: 55, Articulation Points: 1
+sparse_08.txt: 0.000462 seconds, Memory : 2040 Bytes, Vertices: 35, Edges: 50, Articulation Points: 1
+sparse_09.txt: 0.000365 seconds, Memory : 3212 Bytes, Vertices: 60, Edges: 80, Articulation Points: 0
+sparse_10.txt: 0.000199 seconds, Memory : 2492 Bytes, Vertices: 45, Edges: 60, Articulation Points: 1

@@ -1,0 +1,10 @@
+dense_01.txt: 0.000501 seconds, Memory : 1108 Bytes, Vertices: 10, Edges: 31
+dense_02.txt: 0.000592 seconds, Memory : 1960 Bytes, Vertices: 15, Edges: 68
+dense_03.txt: 0.000210 seconds, Memory : 1592 Bytes, Vertices: 12, Edges: 52
+dense_04.txt: 0.000357 seconds, Memory : 2716 Bytes, Vertices: 20, Edges: 114
+dense_05.txt: 0.000306 seconds, Memory : 920 Bytes, Vertices: 8, Edges: 23
+dense_06.txt: 0.000213 seconds, Memory : 2484 Bytes, Vertices: 18, Edges: 107
+dense_07.txt: 0.000341 seconds, Memory : 1920 Bytes, Vertices: 14, Edges: 68
+dense_08.txt: 0.000252 seconds, Memory : 2152 Bytes, Vertices: 16, Edges: 81
+dense_09.txt: 0.000389 seconds, Memory : 2980 Bytes, Vertices: 22, Edges: 143
+dense_10.txt: 0.000309 seconds, Memory : 3500 Bytes, Vertices: 25, Edges: 165

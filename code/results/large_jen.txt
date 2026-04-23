@@ -1,0 +1,10 @@
+large_01.txt: 0.001089 seconds, Memory : 83512 Bytes, Vertices: 1000, Edges: 1500
+large_02.txt: 0.001759 seconds, Memory : 100092 Bytes, Vertices: 1200, Edges: 1800
+large_03.txt: 0.001405 seconds, Memory : 87788 Bytes, Vertices: 900, Edges: 2500
+large_04.txt: 0.001585 seconds, Memory : 95744 Bytes, Vertices: 1100, Edges: 2000
+large_05.txt: 0.001742 seconds, Memory : 100072 Bytes, Vertices: 1000, Edges: 3000
+large_06.txt: 0.002257 seconds, Memory : 131544 Bytes, Vertices: 1300, Edges: 4000
+large_07.txt: 0.001141 seconds, Memory : 80304 Bytes, Vertices: 950, Edges: 1500
+large_08.txt: 0.003074 seconds, Memory : 115892 Bytes, Vertices: 1150, Edges: 3500
+large_09.txt: 0.001291 seconds, Memory : 89068 Bytes, Vertices: 1000, Edges: 2000
+large_10.txt: 0.002709 seconds, Memory : 139868 Bytes, Vertices: 1250, Edges: 5000
