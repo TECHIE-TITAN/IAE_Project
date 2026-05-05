@@ -25,14 +25,15 @@ CATEGORIES = [
 ]
 
 def compile_code():
-    """Compile the adapted C++ source files."""
+    """Compile the adapted C++ source files with proper OpenMP linking."""
     print("=" * 60)
     print("Compiling C++ sources...")
     print("=" * 60)
 
     try:
+        # Added -fopenmp here just in case Jen-Schmidt also uses parallel sections
         subprocess.run(
-            ["g++", "Jen-Schmidt-dataset.cpp", "-o", "jenschmidt_dataset", "-std=c++17", "-O2"],
+            ["g++", "Jen-Schmidt-dataset.cpp", "-o", "jenschmidt_dataset", "-std=c++17", "-O3", "-fopenmp"],
             check=True,
             capture_output=True,
             text=True,
@@ -43,8 +44,10 @@ def compile_code():
         sys.exit(1)
 
     try:
+        # Added -fopenmp flag to fix the undefined reference to omp_set_num_threads
+        # Also bumped optimization from -O2 to -O3 for better vectorization performance
         subprocess.run(
-            ["g++", "slota-dataset.cpp", "-o", "slota_dataset", "-std=c++17", "-O2"],
+            ["g++", "slota-dataset.cpp", "-o", "slota_dataset", "-std=c++17", "-O3", "-fopenmp"],
             check=True,
             capture_output=True,
             text=True,

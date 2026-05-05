@@ -1,5 +1,9 @@
 #include <bits/stdc++.h>
 #include <chrono>
+#include <omp.h>
+#include <fstream>
+#include <sstream>
+
 using namespace std;
 
 size_t calculateVectorMemory(const vector<vector<int>> &vec)
@@ -22,10 +26,10 @@ bool exclusion_bfs(const vector<vector<int>> &adj, const vector<int> &L, const v
     {
         int u = Q.front();
         Q.pop();
-        // Corrected condition: We ONLY count it as escaping if it reaches an ANCESTOR.
-        // Reaching another child (P[u] == remove_v) is NOT an escape route unless that child can reach an ancestor.
+        
         if (L[u] <= lvl_v && u != remove_v)
             return true;
+            
         for (int nb : adj[u])
         {
             if (nb != remove_v && nb >= 0 && nb < (int)stamp.size() && stamp[nb] != curStamp)
@@ -76,10 +80,6 @@ bool is_root_articulation_slota(const vector<vector<int>> &adj, int root, const 
         return false;
     }
     
-    // We want to verify if ALL children are part of the SAME connected component
-    // when the root is removed. If there are disconnected pools of children, then root is an AP.
-    
-    // We launch ONE single BFS from the very first child.
     int start_child = children[0];
     queue<int> Q;
     Q.push(start_child);
@@ -101,7 +101,6 @@ bool is_root_articulation_slota(const vector<vector<int>> &adj, int root, const 
             stamp[v] = curStamp;
             Q.push(v);
             
-            // Check if this newly reached node represents another child of the root
             for (int child : children)
             {
                 if (v == child)
@@ -113,7 +112,6 @@ bool is_root_articulation_slota(const vector<vector<int>> &adj, int root, const 
         }
     }
     
-    // If the BFS from the first child failed to reach ALL other children, the root separates them.
     return children_reached < (int)children.size();
 }
 
@@ -129,8 +127,6 @@ int main(int argc, char *argv[])
     }
 
     string input_file = argv[1];
-
-    // Start timing
     auto start = chrono::high_resolution_clock::now();
 
     ifstream fin(input_file);
@@ -143,7 +139,6 @@ int main(int argc, char *argv[])
     string line;
     int n = 0, m = 0;
 
-    // Skip comment lines starting with '#', read first data line as n m
     while (getline(fin, line))
     {
         if (line.empty() || line[0] == '#')
@@ -169,7 +164,6 @@ int main(int argc, char *argv[])
         int u, v;
         if (ss >> u >> v)
         {
-            // Dataset is 0-indexed, no adjustment needed
             if (u >= 0 && u < n && v >= 0 && v < n)
             {
                 adj[u].push_back(v);
@@ -182,11 +176,10 @@ int main(int argc, char *argv[])
 
     vector<int> P(n, -2), L(n, -1), stamp(n, 0);
     vector<bool> seen(n, false), isArt_slota(n, false);
-    int curStamp = 1;
 
     if (is_cycle_graph(adj, n))
     {
-        // Cycle graph - no articulation points
+        // Cycle graphs have no articulation points.
     }
     else
     {
@@ -194,13 +187,17 @@ int main(int argc, char *argv[])
         {
             if (seen[root])
                 continue;
+
             vector<int> comp;
+            vector<int> root_children;
             queue<int> Q;
+            
             Q.push(root);
             seen[root] = true;
             P[root] = -1;
             L[root] = 0;
             comp.push_back(root);
+
             while (!Q.empty())
             {
                 int u = Q.front();
@@ -214,48 +211,70 @@ int main(int argc, char *argv[])
                         L[nb] = L[u] + 1;
                         Q.push(nb);
                         comp.push_back(nb);
+                        
+                        if (u == root)
+                        {
+                            root_children.push_back(nb);
+                        }
                     }
                 }
             }
-            vector<int> root_children;
-            for (int v = 0; v < n; v++)
-            {
-                if (P[v] == root)
-                {
-                    root_children.push_back(v);
-                }
-            }
-            if (is_root_articulation_slota(adj, root, root_children, stamp, curStamp))
+            
+            vector<int> root_local_stamp(n, 0);
+            int root_local_curStamp = 1;
+            if (is_root_articulation_slota(adj, root, root_children, root_local_stamp, root_local_curStamp))
             {
                 isArt_slota[root] = true;
             }
-            for (int v : comp)
+
+            // Explicitly set the number of execution threads to 16
+            omp_set_num_threads(16);
+
+            #pragma omp parallel
             {
-                if (v == root)
-                    continue;
-                bool is_articulation = false;
-                vector<int> children;
-                for (int nb : adj[v])
+                // Allocated ONCE per thread, not per loop iteration
+                vector<int> thread_stamp(n, 0);
+                int thread_curStamp = 1;
+                vector<int> local_children; 
+
+                // Dynamic scheduling handles variable execution paths of exclusion_bfs
+                #pragma omp for schedule(dynamic, 4)
+                for (size_t i = 0; i < comp.size(); i++)
                 {
-                    if (P[nb] == v)
+                    int v = comp[i];
+                    if (v == root)
+                        continue;
+
+                    local_children.clear();
+                    for (int nb : adj[v])
                     {
-                        children.push_back(nb);
+                        if (P[nb] == v)
+                        {
+                            local_children.push_back(nb);
+                        }
                     }
-                }
-                if (children.empty())
-                    continue;
-                for (int w : children)
-                {
-                    bool can_reach_ancestor = exclusion_bfs(adj, L, P, stamp, v, w, L[v], ++curStamp);
-                    if (!can_reach_ancestor)
+                    if (local_children.empty())
+                        continue;
+                        
+                    bool is_articulation = false;
+                    for (int w : local_children)
                     {
-                        is_articulation = true;
-                        break;
+                        // Safely increment stamp
+                        thread_curStamp++; 
+                        if (exclusion_bfs(adj, L, P, thread_stamp, v, w, L[v], thread_curStamp))
+                        {
+                            // It managed to escape, check next child
+                        }
+                        else
+                        {
+                            is_articulation = true;
+                            break;
+                        }
                     }
-                }
-                if (is_articulation)
-                {
-                    isArt_slota[v] = true;
+                    if (is_articulation)
+                    {
+                        isArt_slota[v] = true; 
+                    }
                 }
             }
         }
@@ -271,11 +290,9 @@ int main(int argc, char *argv[])
     size_t isArt_slota_memory = sizeof(isArt_slota) + isArt_slota.capacity() * sizeof(bool);
     size_t total_memory = adj_memory + P_memory + L_memory + stamp_memory + seen_memory + isArt_slota_memory;
 
-    // End timing
     auto end = chrono::high_resolution_clock::now();
     chrono::duration<double> elapsed = end - start;
 
-    // Extract filename from path
     string filepath = argv[1];
     string filename = filepath;
     size_t pos = filepath.find_last_of("/\\");
