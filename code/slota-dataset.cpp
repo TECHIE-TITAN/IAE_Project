@@ -22,7 +22,9 @@ bool exclusion_bfs(const vector<vector<int>> &adj, const vector<int> &L, const v
     {
         int u = Q.front();
         Q.pop();
-        if ((L[u] <= lvl_v && u != remove_v) || P[u] == remove_v)
+        // Corrected condition: We ONLY count it as escaping if it reaches an ANCESTOR.
+        // Reaching another child (P[u] == remove_v) is NOT an escape route unless that child can reach an ancestor.
+        if (L[u] <= lvl_v && u != remove_v)
             return true;
         for (int nb : adj[u])
         {
@@ -73,46 +75,46 @@ bool is_root_articulation_slota(const vector<vector<int>> &adj, int root, const 
     {
         return false;
     }
-    for (size_t i = 0; i < children.size(); i++)
+    
+    // We want to verify if ALL children are part of the SAME connected component
+    // when the root is removed. If there are disconnected pools of children, then root is an AP.
+    
+    // We launch ONE single BFS from the very first child.
+    int start_child = children[0];
+    queue<int> Q;
+    Q.push(start_child);
+    curStamp++;
+    stamp[start_child] = curStamp;
+    
+    int children_reached = 1;
+    
+    while (!Q.empty())
     {
-        int start_child = children[i];
-        queue<int> Q;
-        Q.push(start_child);
-        curStamp++;
-        stamp[start_child] = curStamp;
-        bool can_reach_other_children = false;
-        while (!Q.empty() && !can_reach_other_children)
+        int u = Q.front();
+        Q.pop();
+        for (int v : adj[u])
         {
-            int u = Q.front();
-            Q.pop();
-            for (int v : adj[u])
+            if (v == root || stamp[v] == curStamp)
             {
-                if (v == root || stamp[v] == curStamp)
+                continue;
+            }
+            stamp[v] = curStamp;
+            Q.push(v);
+            
+            // Check if this newly reached node represents another child of the root
+            for (int child : children)
+            {
+                if (v == child)
                 {
-                    continue;
-                }
-                for (size_t j = 0; j < children.size(); j++)
-                {
-                    if (j != i && v == children[j])
-                    {
-                        can_reach_other_children = true;
-                        break;
-                    }
-                }
-                stamp[v] = curStamp;
-                Q.push(v);
-                if (can_reach_other_children)
-                {
+                    children_reached++;
                     break;
                 }
             }
         }
-        if (!can_reach_other_children)
-        {
-            return true;
-        }
     }
-    return false;
+    
+    // If the BFS from the first child failed to reach ALL other children, the root separates them.
+    return children_reached < (int)children.size();
 }
 
 int main(int argc, char *argv[])

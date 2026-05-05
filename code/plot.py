@@ -54,7 +54,7 @@ ALG_STYLE = {
 _LINE_RE = re.compile(
     r"^(?P<fname>\S+):\s+"
     r"(?P<time>[0-9.]+)\s+seconds,\s+"
-    r"Memory\s*:\s*(?P<mem>\d+)\s+Bytes,\s+"
+    r"Memory\s*:\s*(?P<mem>\d+)\s+[Bb]ytes,\s+"
     r"Vertices:\s*(?P<v>\d+),\s+"
     r"Edges:\s*(?P<e>\d+)"
 )

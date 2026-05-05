@@ -2,200 +2,201 @@
 #include <chrono>
 using namespace std;
 
-// Iterative DFS to build DFS tree and numbering (avoids stack overflow)
-void dfs(vector<vector<int>> &g, vector<vector<int>> &dfs_tree, int start, int w_start, vector<int> &visited, vector<int> &numbering)
+// ── DFS: builds parent[], depth[], and collects back edges ──────────────────
+// Back edges are stored as (u, v) where v is the ancestor (depth[v] < depth[u])
+void dfs(const vector<vector<int>> &g,
+         vector<int> &parent,
+         vector<int> &depth,
+         vector<pair<int,int>> &back_edges,
+         int n)
 {
     struct Frame { int node; int idx; };
-    stack<Frame> stk;
-    visited[start] = 1;
-    numbering[w_start] = start;
-    int w = w_start + 1;
-    stk.push({start, 0});
-    while (!stk.empty())
-    {
-        Frame &f = stk.top();
-        if (f.idx < (int)g[f.node].size())
-        {
-            int v = g[f.node][f.idx];
-            f.idx++;
-            if (!visited[v])
-            {
-                visited[v] = 1;
-                dfs_tree[f.node].push_back(v);
-                dfs_tree[v].push_back(f.node);
-                numbering[w] = v;
-                w++;
-                stk.push({v, 0});
-            }
-        }
-        else
-        {
-            stk.pop();
-        }
-    }
-}
-
-// Iterative trace ear (avoids stack overflow)
-void traceEar(vector<vector<int>> &dfs_tree, vector<int> &ear, vector<int> &visited, int start)
-{
-    stack<int> stk;
-    visited[start] = 1;
-    stk.push(start);
-    while (!stk.empty())
-    {
-        int v = stk.top();
-        stk.pop();
-        for (int u : dfs_tree[v])
-        {
-            if (!visited[u])
-            {
-                visited[u] = 1;
-                ear.push_back(u);
-                stk.push(u);
-            }
-        }
-    }
-}
-
-// Find non-tree edges and build ear decomposition
-void findNonTreeEdges(vector<vector<int>> &g, vector<vector<int>> &dfs_tree, vector<int> &numbering, vector<vector<int>> &ear_decomposition, int n)
-{
-    // Build a set of tree edges for fast lookup
-    set<pair<int,int>> tree_edges;
-    for (int u = 0; u < n; u++)
-    {
-        for (int v : dfs_tree[u])
-        {
-            if (u < v)
-                tree_edges.insert({u, v});
-        }
-    }
-
     vector<int> visited(n, 0);
+    stack<Frame> stk;
 
-    for (auto u : numbering)
+    // Handle disconnected graphs: restart DFS from every unvisited node
+    for (int start = 0; start < n; start++)
     {
-        if (u < 0 || u >= n) continue;
-        visited[u] = 1;
-        for (int v : g[u])
-        {
-            int a = min(u, v), b = max(u, v);
-            bool isTreeEdge = tree_edges.count({a, b}) > 0;
+        if (visited[start]) continue;
+        visited[start] = 1;
+        depth[start] = 0;
+        parent[start] = -1;
+        stk.push({start, 0});
 
-            if (!isTreeEdge && !visited[v])
+        while (!stk.empty())
+        {
+            Frame &f = stk.top();
+            int u = f.node;
+            if (f.idx < (int)g[u].size())
             {
-                vector<int> ear;
-                ear.push_back(u);
-                ear.push_back(v);
-                traceEar(dfs_tree, ear, visited, v);
-                ear_decomposition.push_back(ear);
+                int v = g[u][f.idx++];
+                if (v == parent[u]) continue;   // skip the single tree-parent edge
+                if (!visited[v])
+                {
+                    visited[v] = 1;
+                    parent[v] = u;
+                    depth[v] = depth[u] + 1;
+                    stk.push({v, 0});
+                }
+                else if (depth[v] < depth[u])   // v is a proper ancestor → back edge
+                {
+                    back_edges.push_back({u, v});
+                }
+            }
+            else
+            {
+                stk.pop();
             }
         }
     }
 }
 
-size_t calculateVectorMemory(const vector<vector<int>> &vec)
+// ── Chain decomposition ─────────────────────────────────────────────────────
+// For each back edge (u → ancestor v), walk parent[] from u up to v.
+// A tree edge is claimed by the FIRST (shallowest-covering) back edge that
+// touches it; once claimed it won't appear in any later chain.
+// This naturally partitions all back edges + tree edges into disjoint chains.
+void buildChains(const vector<pair<int,int>> &back_edges,
+                 const vector<int> &parent,
+                 const vector<int> &depth,
+                 vector<vector<int>> &chains,
+                 int n)
 {
-    size_t memory = sizeof(vec);
-    for (const auto &inner : vec)
+    // chain_id[v] = index of the chain that owns the tree edge (v → parent[v])
+    // -1 means unclaimed
+    vector<int> chain_id(n, -1);
+
+    // Sort back edges by depth of ancestor (shallowest first) so higher-up
+    // back edges get priority — this matches the canonical Schmidt ordering.
+    vector<pair<int,int>> sorted_be = back_edges;
+    sort(sorted_be.begin(), sorted_be.end(),
+         [&](const pair<int,int> &a, const pair<int,int> &b){
+             return depth[a.second] < depth[b.second];
+         });
+
+    for (auto [u, v] : sorted_be)
     {
-        memory += sizeof(inner);
-        memory += inner.capacity() * sizeof(int);
+        vector<int> chain;
+        chain.push_back(u);
+
+        int cur = u;
+        // Walk up the DFS tree from u toward v, collecting unclaimed tree edges
+        while (cur != v && chain_id[cur] == -1)
+        {
+            chain_id[cur] = (int)chains.size();
+            cur = parent[cur];
+            chain.push_back(cur);
+        }
+        // chain now ends either at v (fresh path) or at a node already in a
+        // prior chain (convergence point) — both are valid chain endings.
+
+        if (chain.size() >= 2)          // skip degenerate single-node chains
+            chains.push_back(chain);
     }
-    return memory;
+}
+
+// ── Memory helper ────────────────────────────────────────────────────────────
+size_t vecVecMemory(const vector<vector<int>> &v)
+{
+    size_t m = sizeof(v);
+    for (const auto &inner : v)
+        m += sizeof(inner) + inner.capacity() * sizeof(int);
+    return m;
 }
 
 int main(int argc, char *argv[])
 {
     ios::sync_with_stdio(0);
     cin.tie(0);
+
     if (argc != 2)
     {
-        cerr << "Usage: " << argv[0] << " <input_file>" << endl;
+        cerr << "Usage: " << argv[0] << " <input_file>\n";
         return 1;
     }
 
-    // Start timing
-    auto start = chrono::high_resolution_clock::now();
+    auto t0 = chrono::high_resolution_clock::now();
 
     ifstream infile(argv[1]);
     if (!infile)
     {
-        cerr << "Error: Could not open file " << argv[1] << endl;
+        cerr << "Error: Could not open file " << argv[1] << "\n";
         return 1;
     }
 
     int n = 0, m = 0;
     string line;
 
-    // Skip comment lines starting with '#'
+    // Skip comment lines
     while (getline(infile, line))
     {
-        if (line.empty() || line[0] == '#')
-            continue;
-        // First non-comment line has n and m
-        stringstream ss(line);
-        if (ss >> n >> m)
-            break;
+        if (line.empty() || line[0] == '#') continue;
+        istringstream ss(line);
+        if (ss >> n >> m) break;
     }
 
     if (n <= 0)
     {
-        cerr << "Error: Could not find valid n and m values in the file" << endl;
+        cerr << "Error: Could not parse n and m\n";
         return 1;
     }
 
     vector<vector<int>> g(n);
     int edges_read = 0;
+
     while (getline(infile, line))
     {
-        if (line.empty() || line[0] == '#')
-            continue;
-        stringstream ss(line);
+        if (line.empty() || line[0] == '#') continue;
+        if (edges_read >= m) break;         // honour m — stops on trailing junk
+        istringstream ss(line);
         int u, v;
-        if (ss >> u >> v)
-        {
-            if (u >= 0 && u < n && v >= 0 && v < n)
-            {
-                g[u].push_back(v);
-                g[v].push_back(u);
-                edges_read++;
-            }
-        }
+        if (!(ss >> u >> v)) continue;
+        if (u < 0 || u >= n || v < 0 || v >= n) continue;
+        if (u == v) continue;               // skip self-loops
+
+        // Deduplicate: only add if edge not already present
+        // (for huge graphs, swap this for an unordered check or accept duplicates)
+        g[u].push_back(v);
+        g[v].push_back(u);
+        edges_read++;
     }
     infile.close();
 
-    size_t g_memory = calculateVectorMemory(g);
+    // ── DFS ──────────────────────────────────────────────────────────────────
+    vector<int> parent(n, -1);
+    vector<int> depth(n, 0);
+    vector<pair<int,int>> back_edges;
+    back_edges.reserve(edges_read);         // upper bound; avoids realloc
 
-    vector<vector<int>> dfs_tree(n);
-    vector<int> visited(n, 0);
-    vector<int> numbering(n);
-    dfs(g, dfs_tree, 0, 0, visited, numbering);
+    dfs(g, parent, depth, back_edges, n);
 
-    size_t dfs_tree_memory = calculateVectorMemory(dfs_tree);
-    size_t visited_memory = sizeof(visited) + visited.capacity() * sizeof(int);
-    size_t numbering_memory = sizeof(numbering) + numbering.capacity() * sizeof(int);
+    // ── Chain decomposition ───────────────────────────────────────────────────
+    vector<vector<int>> chains;
+    buildChains(back_edges, parent, depth, chains, n);
 
-    vector<vector<int>> ear_decomposition;
-    findNonTreeEdges(g, dfs_tree, numbering, ear_decomposition, n);
+    // ── Memory accounting ─────────────────────────────────────────────────────
+    size_t mem_g       = vecVecMemory(g);
+    size_t mem_parent  = sizeof(parent)  + parent.capacity()  * sizeof(int);
+    size_t mem_depth   = sizeof(depth)   + depth.capacity()   * sizeof(int);
+    size_t mem_be      = sizeof(back_edges) + back_edges.capacity() * sizeof(pair<int,int>);
+    size_t mem_chains  = vecVecMemory(chains);
+    size_t total_mem   = mem_g + mem_parent + mem_depth + mem_be + mem_chains;
 
-    size_t ear_decomposition_memory = calculateVectorMemory(ear_decomposition);
-    size_t total_memory = g_memory + dfs_tree_memory + visited_memory + numbering_memory + ear_decomposition_memory;
+    auto t1 = chrono::high_resolution_clock::now();
+    chrono::duration<double> elapsed = t1 - t0;
 
-    // End timing
-    auto end = chrono::high_resolution_clock::now();
-    chrono::duration<double> elapsed = end - start;
-
-    // Extract filename from path
+    // Extract filename
     string filepath = argv[1];
-    string filename = filepath;
-    size_t pos = filepath.find_last_of("/\\");
-    if (pos != string::npos)
-        filename = filepath.substr(pos + 1);
+    string filename = filepath.substr(filepath.find_last_of("/\\") + 1);
 
-    cout << filename << ": " << fixed << setprecision(6) << elapsed.count()
-         << " seconds, Memory : " << total_memory << " Bytes"
-         << ", Vertices: " << n << ", Edges: " << edges_read << endl;
+    cout << filename
+         << ": "    << fixed << setprecision(6) << elapsed.count() << " seconds"
+         << ", Memory: "   << total_mem   << " bytes"
+         << ", Vertices: " << n
+         << ", Edges: "    << edges_read
+         << ", Chains: "   << chains.size()
+         << ", Back edges: " << back_edges.size()
+         << "\n";
 
     return 0;
 }

@@ -10,7 +10,7 @@ import time
 # Change to script directory
 os.chdir(os.path.dirname(os.path.abspath(__file__)))
 
-DATASET_BASE = os.path.join("dataset", "dataset")
+DATASET_BASE = "dataset"
 RESULTS_DIR = "results"
 TIMEOUT_SECONDS = 300  # 5 minute timeout per graph
 
